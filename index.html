@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TACTICAL OPS | Airsoft Community</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="scanline"></div>
+    <div class="grid-overlay"></div>
+    
+    <!-- Custom Tactical Cursor -->
+    <div id="cursor">
+        <div class="cursor-line-v"></div>
+        <div class="cursor-line-h"></div>
+        <span class="cursor-coords">00.000, 00.000</span>
+    </div>
+
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo-container">
+                <a href="#inicio" class="logo">ARENA DE AIRSOFT <span class="blink">_</span></a>
+                <div class="nav-toggle" id="navToggle">MENU // OPS_RECON</div>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#inicio" data-text="INICIO">INICIO</a></li>
+                <li><a href="#eventos" data-text="EVENTOS">EVENTOS</a></li>
+                <li><a href="#campos" data-text="CAMPOS">CAMPOS</a></li>
+                <li><a href="#mercado" data-text="MERCADO">MERCADO</a></li>
+                <li><a href="#equipos" data-text="EQUIPOS">EQUIPOS</a></li>
+                <li><a href="#medios" data-text="MEDIOS">MEDIOS</a></li>
+                <li><a href="#guia" data-text="GUIA">GUÍA</a></li>
+                <li><a href="#comunidad" data-text="COMUNIDAD">COMUNIDAD</a></li>
+                <li><a href="#acerca" data-text="ACERCA">ACERCA</a></li>
+                <li><a href="#contactos" data-text="CONTACTOS">CONTACTOS</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Vista Inicio: Hero + Comunidad -->
+        <div id="view-inicio" class="view active">
+            <section id="hero" class="hero">
+                <div class="hero-bg-visuals">
+                    <canvas id="hero-sequence"></canvas>
+                </div>
+                <div class="hero-content">
+                    <div class="status-bar">
+                        <span class="blink">●</span> SIGNAL: SECURE | ENCRYPTION: AES-256
+                    </div>
+                    <h1 class="glitch-text" data-value="OPERATION_PHANTOM">OPERATION_PHANTOM</h1>
+                    <div class="hero-footer">
+                        <div class="coordinates">
+                            COORD: 52°31'12"N 13°24'18"E<br>
+                            ELEV: 34M | TEMP: 12°C
+                        </div>
+                        <div class="cta-container">
+                            <button class="btn-tactical">
+                                <span class="btn-glitch"></span>
+                                REGISTRAR OPERADOR
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="comunidad" class="community-grid">
+                <div class="section-label">[ OPERADORES_ACTIVOS ]</div>
+                <div class="bento-grid">
+                    <div class="bento-item wide card-reveal">
+                        <div class="operator-profile">
+                            <div class="rank">CPT</div>
+                            <div class="name">STRIKER_01</div>
+                            <div class="stats">
+                                <span>MISIONES: 142</span>
+                                <span>PRECISIÓN: 94%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bento-item card-reveal">
+                        <div class="stat-box">
+                            <div class="label">ESTADO_RED</div>
+                            <div class="value">ACTIVO</div>
+                        </div>
+                    </div>
+                    <div class="bento-item card-reveal">
+                        <div class="stat-box">
+                            <div class="label">UDS_DESPLEGADAS</div>
+                            <div class="value">08</div>
+                        </div>
+                    </div>
+                    <div class="bento-item tall card-reveal">
+                        <div class="unit-data">
+                            <div class="label">EQUIPO_ALFA</div>
+                            <div class="progress-bar"><div class="fill" style="width: 85%"></div></div>
+                            <div class="label">EQUIPO_BRAVO</div>
+                            <div class="progress-bar"><div class="fill" style="width: 60%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Vista Equipos -->
+        <div id="view-equipos" class="view">
+            <section id="equipos" class="equipos-section">
+                <div class="section-label">[ DESPLIEGUE_DE_UNIDADES ]</div>
+                <div class="equipos-grid">
+                    <div class="equipo-card card-reveal">
+                        <div class="card-frame"></div>
+                        <img src="./img/imagen1.jpg" alt="Unidad Alfa">
+                        <div class="card-overlay"><span class="unit-id">UNIDAD_ALFA</span></div>
+                    </div>
+                    <div class="equipo-card card-reveal">
+                        <div class="card-frame"></div>
+                        <img src="./img/imagen2.jpg" alt="Unidad Bravo">
+                        <div class="card-overlay"><span class="unit-id">UNIDAD_BRAVO</span></div>
+                    </div>
+                    <div class="equipo-card card-reveal">
+                        <div class="card-frame"></div>
+                        <img src="./img/imagen3.jpg" alt="Unidad Charlie">
+                        <div class="card-overlay"><span class="unit-id">UNIDAD_CHARLIE</span></div>
+                    </div>
+                    <div class="equipo-card card-reveal">
+                        <div class="card-frame"></div>
+                        <img src="./img/imagen4.jpg" alt="Unidad Delta">
+                        <div class="card-overlay"><span class="unit-id">UNIDAD_DELTA</span></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

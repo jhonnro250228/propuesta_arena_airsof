@@ -1,0 +1,353 @@
+:root {
+    --bg-black: #0b0c10;
+    --bg-gray: #1f2833;
+    --tactical-green: #4b5320;
+    --accent-bronze: #c5a059;
+    --text-white: #e0e0e0;
+    --border-alpha: rgba(255, 255, 255, 0.1);
+    --font-mono: 'Share Tech Mono', monospace;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    cursor: none; /* Ocultar cursor nativo */
+}
+
+body {
+    background-color: var(--bg-black);
+    color: var(--text-white);
+    font-family: var(--font-mono);
+    overflow-x: hidden;
+    line-height: 1.6;
+}
+
+/* Sistema de Vistas Independientes */
+.view {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    min-height: 100vh;
+}
+
+.view.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Efectos de Pantalla Militar */
+.grid-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: 
+        linear-gradient(var(--border-alpha) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border-alpha) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.scanline {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(
+        to bottom,
+        rgba(18, 16, 16, 0) 50%,
+        rgba(0, 0, 0, 0.1) 50%
+    );
+    background-size: 100% 4px;
+    z-index: 101;
+    pointer-events: none;
+    opacity: 0.3;
+}
+
+/* Cursor Táctico */
+#cursor {
+    position: fixed;
+    width: 40px;
+    height: 40px;
+    pointer-events: none;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.1s ease-out;
+}
+
+.cursor-line-v, .cursor-line-h {
+    position: absolute;
+    background: var(--accent-bronze);
+    opacity: 0.7;
+}
+
+.cursor-line-v { width: 1px; height: 100%; }
+.cursor-line-h { width: 100%; height: 1px; }
+
+.cursor-coords {
+    position: absolute;
+    top: 45px;
+    left: 10px;
+    font-size: 10px;
+    color: var(--accent-bronze);
+    white-space: nowrap;
+}
+
+/* Navegación */
+.header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-alpha);
+    position: sticky;
+    top: 0;
+    background: rgba(11, 12, 16, 0.95);
+    z-index: 500;
+}
+
+.logo-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.logo {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--accent-bronze);
+    text-decoration: none;
+    letter-spacing: 2px;
+}
+
+.nav-menu {
+    display: flex;
+    justify-content: space-between;
+    list-style: none;
+    gap: 10px;
+}
+
+.nav-menu a {
+    color: var(--text-white);
+    text-decoration: none;
+    font-size: 0.75rem;
+    padding: 5px 10px;
+    border: 1px solid transparent;
+    transition: all 0.3s;
+}
+
+.nav-menu a:hover {
+    background: var(--tactical-green);
+    border-color: var(--accent-bronze);
+    color: white;
+}
+
+/* Hero Section */
+.hero {
+    height: 90vh;
+    display: flex;
+    align-items: center;
+    padding: 5%;
+    position: relative;
+    overflow: hidden;
+    background-color: transparent; /* Asegura que el canvas sea visible */
+}
+
+.hero-bg-visuals {
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    z-index: 0; /* Detrás del contenido, pero visible */
+    pointer-events: none;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 10; /* Asegura que el contenido esté por encima del canvas */
+}
+
+#hero-sequence {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Aumentamos un poco el brillo para verificar la carga */
+    filter: grayscale(0.5) contrast(1.1) brightness(0.8); 
+    image-rendering: -webkit-optimize-contrast;
+    transition: filter 0.5s ease; /* Transición para el filtro si se cambia dinámicamente */
+}
+
+/* Equipos Section */
+.equipos-section {
+    padding: 10% 5%;
+    background-color: var(--bg-black);
+    border-top: 1px solid var(--border-alpha);
+}
+
+.equipos-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: 40px;
+}
+
+.equipo-card {
+    position: relative;
+    height: 450px;
+    background: var(--bg-gray);
+    border: 1px solid var(--border-alpha);
+    overflow: hidden;
+    transition: border-color 0.3s ease;
+}
+
+.equipo-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) brightness(0.7);
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), filter 0.6s ease;
+}
+
+.equipo-card:hover img {
+    transform: scale(1.1);
+    filter: grayscale(0.2) brightness(1);
+}
+
+.equipo-card:hover {
+    border-color: var(--accent-bronze);
+}
+
+.card-frame {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 5;
+    border: 15px solid transparent;
+    /* Esquinas tácticas */
+    background: 
+        linear-gradient(to right, var(--accent-bronze) 2px, transparent 2px) 0 0,
+        linear-gradient(to bottom, var(--accent-bronze) 2px, transparent 2px) 0 0,
+        linear-gradient(to left, var(--accent-bronze) 2px, transparent 2px) 100% 0,
+        linear-gradient(to bottom, var(--accent-bronze) 2px, transparent 2px) 100% 0;
+    background-repeat: no-repeat;
+    background-size: 20px 20px;
+    opacity: 0.3;
+}
+
+.card-overlay {
+    position: absolute;
+    bottom: 20px; left: 20px;
+    z-index: 6;
+    color: var(--accent-bronze);
+    font-weight: bold;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+}
+
+.status-bar {
+    font-size: 0.8rem;
+    color: var(--accent-bronze);
+    margin-bottom: 10px;
+}
+
+h1 {
+    font-size: clamp(3rem, 10vw, 6rem);
+    letter-spacing: -2px;
+    line-height: 0.9;
+    margin-bottom: 30px;
+}
+
+.btn-tactical {
+    background: transparent;
+    border: 1px solid var(--accent-bronze);
+    color: var(--accent-bronze);
+    padding: 15px 40px;
+    font-family: var(--font-mono);
+    font-weight: bold;
+    position: relative;
+    overflow: hidden;
+    transition: 0.3s;
+}
+
+.btn-tactical:hover {
+    background: var(--accent-bronze);
+    color: var(--bg-black);
+    box-shadow: 0 0 20px rgba(197, 160, 89, 0.3);
+}
+
+/* Community Bento Grid */
+.community-grid {
+    padding: 5%;
+    border-top: 1px solid var(--border-alpha);
+}
+
+.section-label {
+    margin-bottom: 20px;
+    color: var(--accent-bronze);
+}
+
+.bento-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.bento-item {
+    background: var(--bg-gray);
+    border: 1px solid var(--border-alpha);
+    padding: 20px;
+    transition: 0.4s;
+}
+
+.bento-item:hover {
+    border-color: var(--accent-bronze);
+}
+
+.bento-item.wide { grid-column: span 2; }
+.bento-item.tall { grid-row: span 2; }
+
+.progress-bar {
+    background: rgba(255,255,255,0.05);
+    height: 4px;
+    margin: 10px 0;
+}
+
+.progress-bar .fill {
+    height: 100%;
+    background: var(--accent-bronze);
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+    .nav-menu {
+        display: none; /* Simple toggle logic in JS */
+        flex-direction: column;
+        position: absolute;
+        top: 60px; left: 0; width: 100%;
+        background: var(--bg-black);
+        padding: 20px;
+    }
+    
+    .bento-grid { grid-template-columns: 1fr; }
+    .bento-item.wide { grid-column: span 1; }
+    .equipos-grid { grid-template-columns: 1fr; }
+}
+
+.blink { animation: blink 1s infinite; }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* Lenis Smooth Scroll Integration Styles */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
