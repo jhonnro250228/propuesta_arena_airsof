@@ -19,6 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const glitchText = document.querySelector('.glitch-text');
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
     
+    const preloader = document.getElementById('preloader');
+    const loaderBar = document.querySelector('.loader-bar');
+    const loaderText = document.querySelector('.loader-text');
+
     // 1. Cursor Táctico Personalizado
     document.addEventListener('mousemove', (e) => {
         const x = e.clientX;
@@ -80,28 +84,71 @@ document.addEventListener('DOMContentLoaded', () => {
     const images = [];
     const airsoft = {
         frame: 0
-    };
+    }; 
 
     // Establecer el tamaño del canvas
     const setCanvasSize = () => {
         const dpr = window.devicePixelRatio || 1;
         canvas.width = window.innerWidth * dpr;
         canvas.height = window.innerHeight * dpr;
+        // Redibujar el frame actual si ya hay imágenes cargadas
+        if (images.length > 0 && airsoft.frame < images.length) {
+            render();
+        }
     };
     setCanvasSize();
     window.addEventListener('resize', setCanvasSize);
 
-    // Precargar todas las imágenes
+    let imagesLoadedCount = 0;
+    const totalCanvasImages = frameCount; // Total de imágenes para la secuencia del canvas
+    const imageLoadPromises = []; // Array para almacenar las promesas de carga de imágenes
+
+    // Precargar todas las imágenes y crear promesas
     for (let i = 0; i < frameCount; i++) {
         const img = new Image();
         img.src = currentFrame(i);
         images.push(img);
+
+        const imgLoadPromise = new Promise((resolve) => {
+            img.onload = () => {
+                imagesLoadedCount++;
+                resolve();
+            };
+            img.onerror = () => {
+                imagesLoadedCount++; // Contar incluso si falla para que la barra progrese
+                console.error(`Failed to load image: ${img.src}`);
+                resolve(); // Resolver incluso en error para no bloquear el preloader
+            };
+        });
+        imageLoadPromises.push(imgLoadPromise);
     }
 
-    // Una vez que todas las imágenes estén cargadas, inicializar la animación
-    images[0].onload = () => {
-        // Dibujar el primer frame
-        context.drawImage(images[0], 0, 0, canvas.width, canvas.height);
+    // Animación de la barra de carga forzada a 2 segundos
+    const loadStatus = { percent: 0 };
+    const visualLoadProgress = gsap.to(loadStatus, {
+        percent: 100,
+        duration: 2,
+        ease: "power1.inOut",
+        onUpdate: () => {
+            loaderBar.style.width = `${loadStatus.percent}%`;
+            loaderText.innerText = `CARGANDO... ${Math.floor(loadStatus.percent)}%`;
+        }
+    });
+
+    // Esperar tanto a las imágenes como a la animación de 3 segundos
+    Promise.all([...imageLoadPromises, visualLoadProgress]).then(() => {
+        // Una vez que todas las imágenes del canvas están cargadas,
+        // esperamos a que el resto de los recursos de la página estén listos.
+        if (document.readyState === 'complete') {
+            hidePreloader();
+        } else {
+            window.addEventListener('load', hidePreloader);
+        }
+
+        // Inicializar la animación GSAP *después* de que todas las imágenes estén cargadas
+        if (images.length > 0) { // Asegurarse de que haya al menos una imagen
+            context.drawImage(images[0], 0, 0, canvas.width, canvas.height);
+        }
 
         gsap.to(airsoft, {
             frame: frameCount - 1,
@@ -116,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 onUpdate: render,
             },
         });
-    };
+    });
 
     // Función para dibujar el frame actual en el canvas
     function render() {
@@ -143,6 +190,16 @@ document.addEventListener('DOMContentLoaded', () => {
             context.clearRect(0, 0, canvas.width, canvas.height);
             context.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
         }
+    }
+
+    function hidePreloader() {
+        // Pequeño retraso para un efecto visual más suave
+        setTimeout(() => {
+            preloader.classList.add('hidden');
+            preloader.addEventListener('transitionend', () => {
+                preloader.remove(); // Eliminar el preloader del DOM después de la transición
+            });
+        }, 500);
     }
     
     // 4. Scroll Reveal Ultra-Suave (para el resto del contenido)
