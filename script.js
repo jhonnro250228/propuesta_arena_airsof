@@ -24,26 +24,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const loaderText = document.querySelector('.loader-text');
 
     // 1. Cursor Táctico Personalizado
+    // Usamos quickSetter para máximo rendimiento (evita parsear strings de transform)
+    const xSet = gsap.quickSetter(cursor, "x", "px");
+    const ySet = gsap.quickSetter(cursor, "y", "px");
+
     document.addEventListener('mousemove', (e) => {
-        const x = e.clientX;
-        const y = e.clientY;
-        
-        cursor.style.transform = `translate(${x - 20}px, ${y - 20}px)`;
+        xSet(e.clientX - 20);
+        ySet(e.clientY - 20);
         
         // Simular coordenadas geográficas cambiantes
-        const lat = (x / window.innerWidth * 10).toFixed(3);
-        const long = (y / window.innerHeight * 10).toFixed(3);
+        const lat = (e.clientX / window.innerWidth * 10).toFixed(3);
+        const long = (e.clientY / window.innerHeight * 10).toFixed(3);
         coords.innerText = `${lat}°N, ${long}°E`;
     });
 
     // Efecto de click técnico
     document.addEventListener('mousedown', () => {
-        cursor.style.transform += ' scale(0.8)';
+        gsap.to(cursor, { scale: 0.8, duration: 0.1, overwrite: true });
         cursor.style.filter = 'hue-rotate(90deg)';
     });
 
     document.addEventListener('mouseup', () => {
-        cursor.style.transform = cursor.style.transform.replace(' scale(0.8)', '');
+        gsap.to(cursor, { scale: 1, duration: 0.1, overwrite: true });
         cursor.style.filter = 'none';
     });
 

@@ -129,7 +129,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: transform 0.1s ease-out;
+    transition: none; /* Respuesta inmediata sin lag de CSS */
 }
 
 .cursor-line-v, .cursor-line-h {
