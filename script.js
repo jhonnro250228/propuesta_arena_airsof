@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ease: "power1.inOut",
         onUpdate: () => {
             loaderBar.style.width = `${loadStatus.percent}%`;
-            loaderText.innerText = `CARGANDO... ${Math.floor(loadStatus.percent)}%`;
+            loaderText.innerText = `LOADING... ${Math.floor(loadStatus.percent)}%`;
         }
     });
 
