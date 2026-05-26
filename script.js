@@ -78,24 +78,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 3. Secuencia de Frames Inmersiva con Canvas, GSAP y ScrollTrigger
     const canvas = document.getElementById("hero-sequence");
+    const canvasBottom = document.getElementById("bottom-sequence");
     const context = canvas.getContext("2d");
+    const contextBottom = canvasBottom.getContext("2d");
 
     const frameCount = 368; // Total de frames de frame_0001 a frame_0368
+    const splitPoint = Math.floor(frameCount / 2); // Punto medio para dividir
+    
     const currentFrame = (index) => `./frames_piloto/frame_${(index + 1).toString().padStart(4, '0')}.webp`;
 
     const images = [];
-    const airsoft = {
-        frame: 0
-    }; 
+    const airsoft = { frame: 0 }; 
+    const airsoftBottom = { frame: splitPoint }; 
 
     // Establecer el tamaño del canvas
     const setCanvasSize = () => {
         const dpr = window.devicePixelRatio || 1;
         canvas.width = window.innerWidth * dpr;
         canvas.height = window.innerHeight * dpr;
+        if(canvasBottom) {
+            canvasBottom.width = window.innerWidth * dpr;
+            canvasBottom.height = window.innerHeight * dpr;
+        }
+        
         // Redibujar el frame actual si ya hay imágenes cargadas
         if (images.length > 0 && airsoft.frame < images.length) {
-            render();
+            render(canvas, context, airsoft.frame);
+        }
+        if (images.length > splitPoint && canvasBottom) {
+            render(canvasBottom, contextBottom, airsoftBottom.frame);
         }
     };
     setCanvasSize();
@@ -150,83 +161,93 @@ document.addEventListener('DOMContentLoaded', () => {
         // Inicializar la animación GSAP *después* de que todas las imágenes estén cargadas
         if (images.length > 0) { // Asegurarse de que haya al menos una imagen
             context.drawImage(images[0], 0, 0, canvas.width, canvas.height);
+            if(canvasBottom && images[splitPoint]) {
+                contextBottom.drawImage(images[splitPoint], 0, 0, canvasBottom.width, canvasBottom.height);
+            }
         }
 
+        // Animación Primera Mitad (Hero)
         gsap.to(airsoft, {
-            frame: frameCount - 1,
+            frame: splitPoint - 1,
             snap: "frame",
             ease: "none",
             scrollTrigger: {
                 trigger: ".hero",
                 pin: true,
-                scrub: 0.5, // Suaviza la transición entre frames
+                scrub: 0.5,
                 start: "top top",
-                end: "+=300%", // La animación durará 3 veces la altura del hero
-                onUpdate: render,
+                end: "+=200%",
+                onUpdate: () => render(canvas, context, airsoft.frame),
             },
         });
+
+        // Animación Segunda Mitad (Bottom)
+        gsap.to(airsoftBottom, {
+            frame: frameCount - 1,
+            snap: "frame",
+            ease: "none",
+            scrollTrigger: {
+                trigger: ".immersion-bottom",
+                start: "top bottom", // Empieza a animar en cuanto entra a la vista
+                end: "bottom top",    // Termina cuando sale de la vista
+                scrub: 1,            // Un poco más de suavizado para la integración
+                onUpdate: () => render(canvasBottom, contextBottom, airsoftBottom.frame),
+            },
+        });
+
+        // 4. Scroll Reveal para Equipos (Inicializado después de cargar imágenes)
+        ScrollTrigger.batch(".card-reveal", {
+            onEnter: elements => gsap.to(elements, {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                stagger: 0.15, 
+                duration: 1.2,
+                ease: "power2.out",
+                overwrite: true
+            }),
+            start: "top 90%", // Se activa un poco más tarde para una entrada más natural
+            once: true        // Solo se anima la primera vez que aparece
+        });
+
     });
 
     // Función para dibujar el frame actual en el canvas
-    function render() {
-        if (images[airsoft.frame]) {
-            const img = images[airsoft.frame];
+    function render(targetCanvas, targetContext, frameIndex) {
+        if (images[frameIndex]) {
+            const img = images[frameIndex];
             
-            // Lógica para emular object-fit: cover en Canvas
-            const canvasAspect = canvas.width / canvas.height;
+            const canvasAspect = targetCanvas.width / targetCanvas.height;
             const imgAspect = img.width / img.height;
             let drawWidth, drawHeight, offsetX, offsetY;
 
             if (canvasAspect > imgAspect) {
-                drawWidth = canvas.width;
-                drawHeight = canvas.width / imgAspect;
+                drawWidth = targetCanvas.width;
+                drawHeight = targetCanvas.width / imgAspect;
                 offsetX = 0;
-                offsetY = (canvas.height - drawHeight) / 2;
+                offsetY = (targetCanvas.height - drawHeight) / 2;
             } else {
-                drawWidth = canvas.height * imgAspect;
-                drawHeight = canvas.height;
-                offsetX = (canvas.width - drawWidth) / 2;
+                drawWidth = targetCanvas.height * imgAspect;
+                drawHeight = targetCanvas.height;
+                offsetX = (targetCanvas.width - drawWidth) / 2;
                 offsetY = 0;
             }
 
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            context.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+            targetContext.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
+            targetContext.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
         }
     }
 
     function hidePreloader() {
-        // Pequeño retraso para un efecto visual más suave
+        // Pequeño retraso para un efecto visual más suave.
         setTimeout(() => {
             preloader.classList.add('hidden');
             preloader.addEventListener('transitionend', () => {
+                ScrollTrigger.refresh(); // REFRESCAR GSAP: Vital para recalcular posiciones tras quitar el loader
                 preloader.remove(); // Eliminar el preloader del DOM después de la transición
             });
         }, 500);
     }
-    
-    // 4. Scroll Reveal Ultra-Suave (para el resto del contenido)
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: "0px 0px -50px 0px"
-    };
-
-    const cardRevealObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = "1";
-                entry.target.style.transform = "translateY(0)";
-                if (entry.target.classList.contains('glitch-text')) scramble(entry.target);
-                cardRevealObserver.unobserve(entry.target); // Dejar de observar una vez revelado
-            }
-        });
-    }, observerOptions);
-
-    document.querySelectorAll('.card-reveal').forEach(el => {
-        el.style.opacity = "0";
-        el.style.transform = "translateY(20px)";
-        el.style.transition = "all 0.6s cubic-bezier(0.23, 1, 0.32, 1)";
-        cardRevealObserver.observe(el);
-    });
 
     // 5. Navegación entre Hojas Independientes (Routing SPA)
     const navToggle = document.getElementById('navToggle');

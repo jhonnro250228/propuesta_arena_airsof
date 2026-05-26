@@ -247,6 +247,11 @@ body {
     margin-top: 40px;
 }
 
+.card-reveal {
+    opacity: 0;
+    transform: translateY(30px) scale(0.98);
+}
+
 .equipo-card {
     position: relative;
     height: 450px;
@@ -310,6 +315,32 @@ h1 {
     letter-spacing: -2px;
     line-height: 0.9;
     margin-bottom: 30px;
+}
+
+.immersion-bottom {
+    height: 100vh;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-color: var(--bg-black);
+}
+
+.immersion-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+}
+
+#bottom-sequence {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(0.5) contrast(1.1) brightness(0.6);
 }
 
 .btn-tactical {
